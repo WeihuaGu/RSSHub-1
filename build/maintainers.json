@@ -1990,8 +1990,10 @@
   "/github/branches/:user/:repo": [
     "max-arnold"
   ],
-  "/github/comments/:user/:repo/:type/:number": [],
-  "/github/comments/:user/:repo/:number?": [],
+  "/github/comments/:user/:repo/:number?": [
+    "TonyRL",
+    "FliegendeWurst"
+  ],
   "/github/contributors/:user/:repo/:order?/:anon?": [
     "zoenglinghou"
   ],
@@ -3388,6 +3390,14 @@
   "/mingpao/:type?/:category?": [
     "TonyRL"
   ],
+  "/miniflux/entry/:feeds/:parameters?": [
+    "emdoe",
+    "DIYgod"
+  ],
+  "/miniflux/subscription/:parameters?": [
+    "emdoe",
+    "DIYgod"
+  ],
   "/mirror/:id": [
     "fifteen42",
     "rde9",
@@ -3421,7 +3431,7 @@
   "/modelscope/studios": [
     "TonyRL"
   ],
-  "/modrinth/models": [
+  "/modrinth/project/:id/versions/:routeParams?": [
     "SettingDust"
   ],
   "/mohw/clarification": [
@@ -4609,6 +4619,9 @@
   ],
   "/seekingalpha/:symbol/:category?": [
     "TonyRL"
+  ],
+  "/sega/maimaidx/news": [
+    "randompasser"
   ],
   "/sega/pjsekai/news": [
     "15x15G"
