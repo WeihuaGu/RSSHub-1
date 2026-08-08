@@ -1,8 +1,9 @@
-import { Route } from '@/types';
-import { baseUrl, getBuildId, getData, getList } from './utils';
-import ofetch from '@/utils/ofetch';
-import cache from '@/utils/cache';
 import { config } from '@/config';
+import type { DataItem, Language, Route } from '@/types';
+import cache from '@/utils/cache';
+import ofetch from '@/utils/ofetch';
+
+import { baseUrl, getBuildId, getData, getList } from './utils';
 
 interface Source {
     id: string;
@@ -14,115 +15,111 @@ interface Source {
     type: string;
 }
 
-const sourceFeedQuery = `
-query SourceFeed($source: ID!, $loggedIn: Boolean! = false, $first: Int, $after: String, $ranking: Ranking, $supportedTypes: [String!]) {
-  page: sourceFeed(
-    source: $source
-    first: $first
-    after: $after
-    ranking: $ranking
-    supportedTypes: $supportedTypes
-  ) {
-    ...FeedPostConnection
-  }
-}
-
-fragment FeedPostConnection on PostConnection {
-  pageInfo {
-    hasNextPage
-    endCursor
-  }
-  edges {
-    node {
-      ...FeedPost
-      pinnedAt
-      contentHtml
-      ...UserPost @include(if: $loggedIn)
+const sourceFeedQuery = /* GraphQL */ `
+    query SourceFeed($source: ID!, $loggedIn: Boolean! = false, $first: Int, $after: String, $ranking: Ranking, $supportedTypes: [String!]) {
+        page: sourceFeed(source: $source, first: $first, after: $after, ranking: $ranking, supportedTypes: $supportedTypes) {
+            ...FeedPostConnection
+        }
     }
-  }
-}
 
-fragment FeedPost on Post {
-  ...FeedPostInfo
-  sharedPost {
-    id
-    title
-    image
-    readTime
-    permalink
-    commentsPermalink
-    createdAt
-    type
-    tags
-    source {
-      id
-      handle
-      permalink
-      image
+    fragment FeedPostConnection on PostConnection {
+        pageInfo {
+            hasNextPage
+            endCursor
+        }
+        edges {
+            node {
+                ...FeedPost
+                pinnedAt
+                contentHtml
+                ...UserPost @include(if: $loggedIn)
+            }
+        }
     }
-    slug
-  }
-  trending
-  feedMeta
-  collectionSources {
-    handle
-    image
-  }
-  numCollectionSources
-  updatedAt
-  slug
-}
 
-fragment FeedPostInfo on Post {
-  id
-  title
-  image
-  readTime
-  permalink
-  commentsPermalink
-  createdAt
-  commented
-  bookmarked
-  views
-  numUpvotes
-  numComments
-  summary
-  bookmark {
-    remindAt
-  }
-  author {
-    id
-    name
-    image
-    username
-    permalink
-  }
-  type
-  tags
-  source {
-    id
-    handle
-    name
-    permalink
-    image
-    type
-  }
-  userState {
-    vote
-    flags {
-      feedbackDismiss
+    fragment FeedPost on Post {
+        ...FeedPostInfo
+        sharedPost {
+            id
+            title
+            summary
+            image
+            readTime
+            permalink
+            commentsPermalink
+            createdAt
+            type
+            tags
+            source {
+                id
+                handle
+                permalink
+                image
+            }
+            slug
+        }
+        trending
+        feedMeta
+        collectionSources {
+            handle
+            image
+        }
+        numCollectionSources
+        updatedAt
+        slug
     }
-  }
-  slug
-}
 
-fragment UserPost on Post {
-  read
-  upvoted
-  commented
-  bookmarked
-  downvoted
-}`;
+    fragment FeedPostInfo on Post {
+        id
+        title
+        image
+        readTime
+        permalink
+        commentsPermalink
+        createdAt
+        commented
+        bookmarked
+        views
+        numUpvotes
+        numComments
+        summary
+        bookmark {
+            remindAt
+        }
+        author {
+            id
+            name
+            image
+            username
+            permalink
+        }
+        type
+        tags
+        source {
+            id
+            handle
+            name
+            permalink
+            image
+            type
+        }
+        userState {
+            vote
+            flags {
+                feedbackDismiss
+            }
+        }
+        slug
+    }
+
+    fragment UserPost on Post {
+        read
+        upvoted
+        commented
+        bookmarked
+        downvoted
+    }
+`;
 
 export const route: Route = {
     path: '/source/:sourceId',
@@ -143,9 +140,9 @@ export const route: Route = {
 
 async function handler(ctx) {
     const sourceId = ctx.req.param('sourceId');
-    const limit = ctx.req.query('limit') ? Number.parseInt(ctx.req.query('limit'), 10) : 10;
-    const link = `${baseUrl}/sources/${sourceId}`;
+    const limit = ctx.req.query('limit') ? Number(ctx.req.query('limit')) : 10;
 
+    const link = `${baseUrl}/sources/${sourceId}`;
     const buildId = await getBuildId();
 
     const userData = (await cache.tryGet(`daily:source:${sourceId}`, async () => {
@@ -167,7 +164,7 @@ async function handler(ctx) {
                     loggedIn: false,
                 },
             });
-            return getList(edges);
+            return getList(edges, true);
         },
         config.cache.routeExpire,
         false
@@ -177,10 +174,10 @@ async function handler(ctx) {
         title: `${userData.name} posts on daily.dev`,
         description: userData.description,
         link,
-        item: items,
+        item: items as DataItem[],
         image: userData.image,
         logo: userData.image,
         icon: userData.image,
-        language: 'en-us',
+        language: 'en-us' as Language,
     };
 }
