@@ -140,7 +140,9 @@
         "xxhash-wasm": "1.1.0",
         "youtube-caption-extractor": "1.10.2",
         "youtubei.js": "17.2.0",
-        "zod": "4.4.3"
+        "zod": "4.4.3",
+        "bufferutil": "^4.0.8",
+        "utf-8-validate": "^6.0.8"
     },
     "devDependencies": {
         "@actions/core": "3.0.1",
